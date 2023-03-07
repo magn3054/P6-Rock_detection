@@ -43,5 +43,5 @@ Run command:
 ros2 run rqt_image_view rqt_image_view
 ```
 
-![image of rqt_image_view](.png)<br>
+![diverse/rqt_image_view_screenshot](.png)<br>
 in *rqt_image_view* choose topic in top-left corner
