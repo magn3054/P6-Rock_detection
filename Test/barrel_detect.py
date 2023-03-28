@@ -1,10 +1,11 @@
 import cv2 as cv
 import numpy as np
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt 
 
-img = cv.imread('C:/Users/magnu_wr887wi/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Test/field_with_barrel.png',0)
+img = cv.imread('C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Test/field_with_barrel.png',0)
 img2 = img.copy()
-template = cv.imread('C:/Users/magnu_wr887wi/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Test/blue_barrel.png',0)
+template = cv.imread('C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Test/blue_barrel.png',0)
+template = cv.resize(template, (120,170))
 w, h = template.shape[::-1]
 
 # All the 6 methods for comparison in a list
