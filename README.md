@@ -26,7 +26,7 @@ Run one of the following commands (if --dst command is used; path should be to s
     rosbags-convert bar --dst /path/to/foo.bag
 ```
 
-![image of conversion progress](.png)<br>
+![image of conversion progress](diverse/bag_conversion.png)<br>
 *It works if no message is returned in the terminal*
 *Conversion may take some time - the bigger the file, the longer the wait*  
 
