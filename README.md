@@ -27,7 +27,8 @@ Run one of the following commands (if --dst command is used; path should be to s
 ```
 
 ![image of conversion progress](.png)<br>
-*Conversion may take some time - just wait*  
+*It works if no message is returned in the terminal*
+*Conversion may take some time - the bigger the file, the longer the wait*  
 
 After conversion you should be able to run the command ***ros2 bag play*** **\<folder containing .db3 and .yaml>**
 
