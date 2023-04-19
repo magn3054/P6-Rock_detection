@@ -7,7 +7,7 @@ cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
 # Set up video writer
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter('RGBFieldRecord.mp4', fourcc, 30.0, (640, 480))
+out = cv2.VideoWriter('RGBFieldRecord1.mp4', fourcc, 30.0, (640, 480))
 
 # Record for 10 minutes
 start_time = cv2.getTickCount()
