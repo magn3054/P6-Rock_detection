@@ -3,36 +3,27 @@ import cv2
 # rtsp://<username>:<password>@<ip-address>/axis-media/media.amp
 rtsp_url = "rtsp://root:kamera@169.254.104.184/axis-media/media.amp"
 
-# Open the video stream
-thermal = cv2.VideoCapture(rtsp_url)
-thermal.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-thermal.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+class ThermalStream:
+    def __init__(self, camera_index=rtsp_url, width=640, height=480):
+        self.camera_index = camera_index
+        self.width = width
+        self.height = height
+        self.cam = cv2.VideoCapture(camera_index)
+        self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
-cam = cv2.VideoCapture(1)
-cam.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-
-# Loop over frames from the video stream
-while True:
-    ret1, Tframe = thermal.read()
-    ret2, Cframe = cam.read()
+    def run(self):
+        while True:
+            ret, Tframe = self.cam.read()
     
-    if ret1 and ret2:
+            if ret:
+                Cframe = cv2.resize(Tframe, (self.width, self.height))
+                cv2.imshow("Normal", Tframe)
         
-        # Tframe = cv2.resize(Tframe, (320, 240))
-        # Cframe = cv2.resize(Cframe, (320, 240))
-
-        # Process the frame here
-        cv2.imshow("Thermal", Tframe)
-        cv2.imshow("Normal", Cframe)
-        
-        # Exit if the user presses 'q'
-        if cv2.waitKey(1) == ord('q'):
-            break
-    else:
-        break
-
-# Cleanup
-thermal.release()
-cam.release()
-cv2.destroyAllWindows()
+                if cv2.waitKey(1) == ord('q'):
+                    break
+            else:
+                break
+    
+        self.cam.release()
+        cv2.destroyAllWindows()
