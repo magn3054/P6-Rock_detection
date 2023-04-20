@@ -2,8 +2,8 @@ import cv2 as cv
 import numpy as np
 
 # Load the image
-img = cv.imread('C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/RGB/field1.png')
-img = cv.resize(img, (400,800))
+img = cv.imread('C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/thermal_img1.jpg')
+# img = cv.resize(img, (400,800))
 
 # Convert the image to grayscale
 gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
