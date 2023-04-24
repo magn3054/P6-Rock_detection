@@ -24,3 +24,4 @@ class CamStream:
     
         self.cam.release()
         cv2.destroyAllWindows()
+
