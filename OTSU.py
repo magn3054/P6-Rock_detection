@@ -60,14 +60,3 @@ class OtsuThresholding3:
         cv2.imshow('Binary Depth Image', self.Depth_binary)
         cv2.waitKey(0) 
         cv2.destroyAllWindows()
-
-
-
-if __name__ == "__main__":
-    otsu = OtsuThresholding1('image.png')
-    otsu.display_images()
-
-
-# if __name__ == "__main__":
-#     otsu = OtsuThresholding('C:/Users/magnu_wr887wi/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/24-04-2023/RGB_15;01;10.jpg')
-#     otsu.display_images()

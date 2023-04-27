@@ -55,10 +55,10 @@ class ImageHistograms3:
         plt.show()
 
 
-if __name__ == "__main__":
-    rgb_path = "C:/Users/magnu_wr887wi/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/24-04-2023/RGB_15;01;10.jpg"
-    thermal_path = "C:/Users/magnu_wr887wi/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/24-04-2023/Thermal_15;01;10.jpg"
-    depth_path = "C:/Users/magnu_wr887wi/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/24-04-2023/Depth_15;01;10.jpg"
+# if __name__ == "__main__":
+#     rgb_path = "C:/Users/magnu_wr887wi/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/24-04-2023/RGB_15;01;10.jpg"
+#     thermal_path = "C:/Users/magnu_wr887wi/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/24-04-2023/Thermal_15;01;10.jpg"
+#     depth_path = "C:/Users/magnu_wr887wi/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/24-04-2023/Depth_15;01;10.jpg"
     
-    histograms = ImageHistograms3(rgb_path, thermal_path, depth_path)
-    histograms.plot_histograms()
+#     histograms = ImageHistograms3(rgb_path, thermal_path, depth_path)
+#     histograms.plot_histograms()
