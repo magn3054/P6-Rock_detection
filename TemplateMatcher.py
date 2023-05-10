@@ -1,11 +1,13 @@
 import cv2
 import numpy as np
+import hist_matcher as HM
 
 class TemplateMatcher:
     def __init__(self, main_img_path):
         self.main_img = cv2.imread(main_img_path)
         self.templates = []
         self.existing_rectangles = []
+        self.poss_rock = []
 
     def add_template(self, template_path):
         template = cv2.imread(template_path)
@@ -30,9 +32,9 @@ class TemplateMatcher:
                 nr += 1
         else:
             if nr == 1:
-                print("Found 1 rock")
+                print("Found 1 possible rock")
             else:
-                print(f"Found {nr} rocks")
+                print(f"Found {nr} possible rocks")
 
     def show_result(self):
         masked_img = cv2.bitwise_and(self.main_img, self.main_img, mask=self.mask)
@@ -43,3 +45,14 @@ class TemplateMatcher:
         result = cv2.addWeighted(masked_img, 1-transparency, overlay, transparency, 0)
         cv2.imshow('Masked', result)
         cv2.waitKey(0)
+
+    # def compare(self, templates):
+    #     x1, y1 = redbox[0]
+    #     x2, y2 = redbox[1]
+    #     #region = self.main_img[y1:y2, x1:x2, :]
+    #     gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
+    #     for template in templates:
+    #         matched = HM.match_histograms(gray, template)
+    #         similarity = np.sum(np.abs(matched - template))
+    #         if similarity < threshold:
+    #             self.poss_rock.append(redbox)
