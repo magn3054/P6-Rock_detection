@@ -1,42 +1,44 @@
 import cv2
-import numpy as np
+import requests
 
-# Load image
-img = cv2.imread("Images/19-04-23/(13;45)thermal_img.jpg")
+rtsp_url = "rtsp://root:kamera@169.254.104.185/axis-media/media.amp"
+camera_ip = "169.254.104.185"
 
-# Define blue color range to exclude from segmentation
-lower_blue = np.array([90, 50, 50])
-upper_blue = np.array([130, 255, 255])
+# Disable Automatic Gain Control (AGC)
+agc_disable_url = f"http://{camera_ip}/axis-cgi/admin/param.cgi?action=update&root.ImageSource.I0.Sensor.AGC=off"
+requests.get(agc_disable_url)
 
-# Create a mask of blue color areas to exclude
-hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-mask = cv2.inRange(hsv, lower_blue, upper_blue)
+# Set a fixed color palette (White-hot)
+color_palette_url = f"http://{camera_ip}/axis-cgi/admin/param.cgi?action=update&root.ImageSource.I0.Sensor.Palette=White-hot"
+requests.get(color_palette_url)
 
-# Invert the mask to exclude blue color areas
-mask = cv2.bitwise_not(mask)
+# Create the ThermalStream class and run it
+class ThermalStream:
+    def __init__(self, camera_index=agc_disable_url, width=640, height=480):
+        self.camera_index = camera_index
+        self.width = width
+        self.height = height
+        self.cam = cv2.VideoCapture(camera_index)
+        self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
-# Apply the mask to the original image
-masked_img = cv2.bitwise_and(img, img, mask=mask)
 
-# Reshape image into a 2D array of pixels
-pixels = masked_img.reshape((-1, 3))
+    def run(self):
+        while True:
+            ret, Tframe = self.cam.read()
+    
+            if ret:
+                Cframe = cv2.resize(Tframe, (self.width, self.height))
+                cv2.imshow("Normal", Tframe)
+        
+                if cv2.waitKey(1) == ord('q'):
+                    break
+            else:
+                break
+    
+        self.cam.release()
+        cv2.destroyAllWindows()
 
-# Convert pixel values to float32 for k-means clustering
-pixels = np.float32(pixels)
-
-# Define k-means parameters
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-k = 2  # number of clusters
-
-# Run k-means clustering
-_, labels, centers = cv2.kmeans(pixels, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-
-# Convert centers back to uint8 and reshape to match image shape
-centers = np.uint8(centers)
-res = centers[labels.flatten()]
-res2 = res.reshape((img.shape))
-
-# Display segmented image
-cv2.imshow('segmented image', res2)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+if __name__ == "__main__":
+    thermal_stream = ThermalStream()
+    thermal_stream.run()

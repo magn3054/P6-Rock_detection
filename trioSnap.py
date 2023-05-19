@@ -14,7 +14,8 @@ start_time = time.time()
 if not os.path.exists(f"Images/{dateNOW}"):
     os.makedirs(f"Images/{dateNOW}")
 
-URL = "rtsp://root:kamera@169.254.104.184/axis-media/media.amp"
+URL = "rtsp://root:kamera@169.254.104.185/axis-media/media.amp"
+# URL= "rtsptextrtsp://root:kamera@169.254.104.185/axis-media/media.amp?videocodec=mpeg4"
 ts = cam.CamStream(camera_index=URL, width=640, height=480)
 
 # Configure depth and color streams from the RealSense camera

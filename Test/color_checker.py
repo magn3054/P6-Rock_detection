@@ -36,6 +36,15 @@ continue_button.place(x=150-100, y=150/2)
 
 tk.mainloop()
 '''
+
+therm_path1 = "C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/10-05-2023/Thermal_09;32;22.jpg"
+therm_path2 = "C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/09-05-2023/Thermal_13;07;41.jpg"
+therm_path3 = "C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/09-05-2023/Thermal_13;17;59.jpg"
+therm_path4 = "C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/09-05-2023/Thermal_13;21;12.jpg"
+therm_path5 = "C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/09-05-2023/Thermal_13;28;46.jpg"
+
+
+
 sX = tk.winfo_screenwidth()
 sY = tk.winfo_screenheight()
 lenX = round(sX/3.025-5)
@@ -43,8 +52,10 @@ lenX = round(sX/3.025-5)
 ## 
 frameWidth = 640
 frameHeight = 480
-cap = cv2.imread("Test/field_with_barrel.png")
+
+cap = cv2.imread(therm_path4)
 cap = cv2.resize(cap, (1014,570)) #(2028,1141)
+
 
 def stackImages(scale,imgArray): ## This def makes it so images can get displayed on a second row 
     rows = len(imgArray)
@@ -163,6 +174,7 @@ while True:
 ##
 
     img = cap
+
     #img = cv2.resize(img, (frameWidth, frameHeight))
     imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)  ## Converts the image to HSV colorspace 
 

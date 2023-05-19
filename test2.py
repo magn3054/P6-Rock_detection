@@ -1,68 +1,108 @@
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
-kernel = 99
-kernel2 = np.ones((5,5), np.uint8)
-kernel3 = np.array([[0,0,1,0,0],
-                    [0,1,1,1,0],
-                    [1,1,1,1,1],
-                    [0,1,1,1,0],
-                    [0,0,1,0,0]])
-# Define paths for input and template images
-input_folder = [
-    "C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/26-04-2023/RGB_13;44;35.jpg",
-    "C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/26-04-2023/RGB_13;45;44.jpg",
-    "C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/26-04-2023/RGB_13;46;21.jpg",
-    "C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/26-04-2023/RGB_13;47;11.jpg",
-    "C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/26-04-2023/RGB_13;47;38.jpg",
-    "C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/26-04-2023/RGB_13;48;05.jpg"
-    ]
+def align_images(thermal_image_path, rgb_image_path):
+    # Load thermal image
+    img = cv2.imread(thermal_image_path)
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-# Load the three template images
-template1 = cv2.imread("C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/templates/template_13;47;11.jpg")
-template2 = cv2.imread("C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/templates/template_13;47;38.jpg")
-template3 = cv2.imread("C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/templates/template_13;48;05.jpg")
+    # Mask for orange and yellow
+    radius = 7
+    kernel2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2*radius+1, 2*radius+1))
+    lower = np.array([14, 182, 241])
+    upper = np.array([34, 255, 255])
+    mask = cv2.inRange(hsv, lower, upper)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel2)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel2)
 
-# Calculate the histogram of each template image
-hist1 = cv2.calcHist([cv2.cvtColor(template1, cv2.COLOR_BGR2HSV)], [0, 1], None, [180, 256], [0, 180, 0, 256])
-hist2 = cv2.calcHist([cv2.cvtColor(template2, cv2.COLOR_BGR2HSV)], [0, 1], None, [180, 256], [0, 180, 0, 256])
-hist3 = cv2.calcHist([cv2.cvtColor(template3, cv2.COLOR_BGR2HSV)], [0, 1], None, [180, 256], [0, 180, 0, 256])
+    # Apply mask to original image
+    merged = cv2.bitwise_and(img, img, mask=mask)
+    merged2 = merged.copy()
 
-# Normalize the histograms
-cv2.normalize(hist1, hist1, 0, 255, cv2.NORM_MINMAX)
-cv2.normalize(hist2, hist2, 0, 255, cv2.NORM_MINMAX)
-cv2.normalize(hist3, hist3, 0, 255, cv2.NORM_MINMAX)
+    # BLOB
+    pixels = merged2.reshape((-1, 3))
+    pixels = np.float32(pixels)
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    k = 3
+    _, labels, centers = cv2.kmeans(pixels, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+    centers = np.uint8(centers)
+    res = centers[labels.flatten()]
+    res2 = res.reshape((merged2.shape))
 
-# Loop through input images
-for input_file in input_folder:
-    # Load the input image
-    img = cv2.imread(input_file)
+    # Use connected component analysis to separate the individual blobs
+    components, labels, stats, centroids= cv2.connectedComponentsWithStats(mask) 
+    # stats return the xpos[0], ypos[1], width[2], height[3] and area[4] of the different blobs
+    rois=[]
+    for i in range(1, len(stats)): 
+        x = stats[i][0]
+        y = stats[i][1]
+        w = stats[i][2]
+        h = stats[i][3]
+        roi = (x, y, w, h)
+        rois.append(roi)
 
-    # Create a mask for each template based on the color space
-    mask1 = cv2.calcBackProject([cv2.cvtColor(img, cv2.COLOR_BGR2HSV)], [0, 1], hist1, [0, 180, 0, 256], 1)
-    mask1 = cv2.medianBlur(mask1, kernel)
-    # mask1 = cv2.dilate(mask1,kernel2, iterations=1)
-    # mask1 = cv2.erode(mask1,kernel2, iterations=1)
+    new_value = 0  # black pixel
 
-    mask2 = cv2.calcBackProject([cv2.cvtColor(img, cv2.COLOR_BGR2HSV)], [0, 1], hist2, [0, 180, 0, 256], 1)
-    mask2 = cv2.medianBlur(mask2, kernel)
-    # mask2 = cv2.dilate(mask2,kernel2, iterations=1)
-    # mask2 = cv2.erode(mask2,kernel2, iterations=1)
+    for i, (x, y, w, h) in enumerate(rois):
+        # Extract region of interest
+        roi = res2[y:y+h, x:x+w]
+        
+        # Compute color histogram
+        hist = cv2.calcHist([res2], [0, 1], None, [180, 256], [0, 180, 0, 256])
+        
+        # find colors present in region 
+        color_threshold = 50 # filters out color with low saturation/brightness such as black 
+        colors = []
+        for row in roi: 
+            for pixel in row:
+                hue,sat,val = pixel
+                if sat > color_threshold and val > color_threshold:
+                    hue_bin = int(hue)
+                    colors.append(hue_bin) 
+        
+        color_counts = np.bincount(colors)
+        color_counts = np.concatenate([color_counts, np.zeros(180-len(color_counts), dtype=int)])
+        
 
-    mask3 = cv2.calcBackProject([cv2.cvtColor(img, cv2.COLOR_BGR2HSV)], [0, 1], hist3, [0, 180, 0, 256], 1)
-    mask3 = cv2.medianBlur(mask3, kernel)
-    # mask3 = cv2.dilate(mask3,kernel2, iterations=1)
-    # mask3 = cv2.erode(mask3,kernel2, iterations=1)
+        if color_counts[3] > color_counts[18]:
+            for row in range(roi.shape[0]):
+                for col in range(roi.shape[1]):
+                    roi[row, col] = new_value        
 
-    # Apply each mask to the input image
-    res1 = cv2.bitwise_and(img, img, mask=mask1)
-    res2 = cv2.bitwise_and(img, img, mask=mask2)
-    res3 = cv2.bitwise_and(img, img, mask=mask3)
+    # Resize thermal image to match RGB image size
+    rgb_image = cv2.imread(rgb_image_path)
+    resized_thermal_image = cv2.resize(res2, (rgb_image.shape[1], rgb_image.shape[0]))
 
-    # Display the results
-    cv2.imshow('Template 1 Result', res1)
-    cv2.imshow('Template 2 Result', res2)
-    cv2.imshow('Template 3 Result', res3)
+    # Find contours
+    gray = cv2.cvtColor(resized_thermal_image, cv2.COLOR_BGR2GRAY)
+    ret, binary_image = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
+    contours, hierarchy = cv2.findContours(binary_image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Draw contour rings on RGB image
+    output_image = rgb_image.copy()
+    for cnt in contours:
+        (x, y), radius = cv2.minEnclosingCircle(cnt)
+        center = (int(x), int(y))
+        radius = int(radius)
+        arclength = cv2.arcLength(cnt, True) ** 2
+        if arclength == 0:
+            arclength += 0.01
+        circularity = 4 * 3.15 * cv2.contourArea(cnt) / arclength
+        if circularity >= 0.5 and radius >= 7:
+            cv2.putText(output_image, "rock", (int(x - radius), int(y - radius - 10)),
+                        cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 0), 2)
+            cv2.circle(output_image, center, radius, (0, 255, 0), 2)
+
+    # Display output image
+    cv2.imshow('Output Image', output_image)
+    cv2.imshow('resized_thermal_image', resized_thermal_image)
     cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-cv2.destroyAllWindows()
+# Specify the file paths of the thermal and RGB images
+thermal_image_path = "./Images/10-05-2023/Thermal_09;32;22.jpg"
+rgb_image_path = "./Images/10-05-2023/RGB_09;32;22.jpg"
+
+# Call the align_images function
+align_images(thermal_image_path, rgb_image_path)

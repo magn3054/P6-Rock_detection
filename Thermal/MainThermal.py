@@ -1,7 +1,7 @@
 import cv2
 
 # rtsp://<username>:<password>@<ip-address>/axis-media/media.amp
-rtsp_url = "rtsp://root:kamera@169.254.104.184/axis-media/media.amp"
+rtsp_url = "rtsp://root:kamera@169.254.104.185/axis-media/media.amp"
 
 class ThermalStream:
     def __init__(self, camera_index=rtsp_url, width=640, height=480):
@@ -27,3 +27,7 @@ class ThermalStream:
     
         self.cam.release()
         cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    thermal_stream = ThermalStream()
+    thermal_stream.run()
