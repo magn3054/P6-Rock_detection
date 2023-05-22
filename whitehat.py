@@ -1,7 +1,7 @@
 # import the necessary packages
 import cv2
-img_path = "C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/10-05-2023/RGB_09;32;22.jpg"
-therm_path = "C:/Users/magnu/OneDrive - Aalborg Universitet/6. semester/P6 Project/Code/P6-AGCO/Images/10-05-2023/Thermal_09;32;22.jpg"
+img_path = "./Images/10-05-2023/RGB_09;32;22.jpg"
+therm_path = "./Images/10-05-2023/Thermal_09;32;22.jpg"
 
 # load the image and convert it to grayscale
 imagew = cv2.imread(img_path)
